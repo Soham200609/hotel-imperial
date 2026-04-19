@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Imperial - Menu & Booking</title>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #d4af37; /* Gold */
+            --dark: #1a1a1a;
+            --light: #f4f4f4;
+            --veg: #2ecc71;
+            --nonveg: #e74c3c;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: var(--light); color: var(--dark); }
+
+        /* Header */
+        header {
+            background: var(--dark);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+        
+        nav ul { display: flex; list-style: none; gap: 20px; }
+        nav a { color: white; text-decoration: none; font-weight: 500; transition: 0.3s; cursor: pointer; }
+        nav a:hover { color: var(--primary); }
+
+        /* Sections */
+        section { padding: 2rem; max-width: 1200px; margin: 0 auto; display: none; }
+        section.active { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h2 { text-align: center; margin-bottom: 2rem; color: var(--dark); border-bottom: 3px solid var(--primary); display: inline-block; padding-bottom: 5px; }
+        .container { text-align: center; }
+
+        /* Menu Styles */
+        .filters { margin-bottom: 20px; }
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--dark);
+            background: white;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .filter-btn.active { background: var(--dark); color: white; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        
+        .food-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: left;
+        }
+        
+        .food-header { display: flex; justify-content: space-between; align-items: center; }
+        .badge { font-size: 0.8rem; padding: 2px 6px; border-radius: 4px; color: white; }
+        .veg { background-color: var(--veg); }
+        .non-veg { background-color: var(--nonveg); }
+
+        .price { font-size: 1.2rem; font-weight: bold; color: var(--primary); margin: 10px 0; }
+        
+        .add-btn {
+            width: 100%;
+            padding: 8px;
+            background: var(--dark);
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .add-btn:hover { background: var(--primary); }
+
+        /* Reservation Form */
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .book-btn {
+            background: var(--primary);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Cart & Checkout */
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        .total-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            text-align: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 200; 
+            left: 0; top: 0; 
+            width: 100%; height: 100%; 
+            background-color: rgba(0,0,0,0.8); 
+        }
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        
+        .payment-icons { font-size: 2rem; margin: 10px 0; color: #555; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fas fa-utensils"></i> Hotel Imperial</div>
+        <nav>
+            <ul>
+                <li><a onclick="showSection('home')">Home</a></li>
+                <li><a onclick="showSection('menu')">Menu</a></li>
+                <li><a onclick="showSection('reservation')">Book Table</a></li>
+                <li><a onclick="showSection('cart')">Cart <span id="cart-count" style="color:var(--primary)">(0)</span></a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HOME SECTION -->
+    <section id="home" class="active">
+        <div class="container" style="margin-top: 50px;">
+            <h1 style="font-size: 3rem; margin-bottom: 20px;">Taste the Luxury</h1>
+            <p style="font-size: 1.2rem; margin-bottom: 30px;">Premium Dining & Accommodation</p>
+            <button class="book-btn" style="width: auto;" onclick="showSection('menu')">Order Now</button>
+            <button class="book-btn" style="width: auto; background: var(--dark);" onclick="showSection('reservation')">Book Table</button>
+        </div>
+    </section>
+
+    <!-- MENU SECTION -->
+    <section id="menu">
+        <div class="container">
+            <h2>Our Menu</h2>
+            <div class="filters">
+                <button class="filter-btn active" onclick="filterMenu('all')">All</button>
+                <button class="filter-btn" onclick="filterMenu('veg')">Vegetarian</button>
+                <button class="filter-btn" onclick="filterMenu('non-veg')">Non-Vegetarian</button>
+            </div>
+            <div class="menu-grid" id="menu-container">
+                <!-- JS will populate this -->
+            </div>
+        </div>
+    </section>
+
+    <!-- RESERVATION SECTION -->
+    <section id="reservation">
+        <div class="container">
+            <h2>Table Reservation</h2>
+            <div style="max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px;">
+                <form id="bookingForm" onsubmit="handleBooking(event)">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="res-name" required placeholder="Your Name">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="res-phone" required placeholder="Mobile Number">
+                    </div>
+                    <div class="form-group">
+                        <label>Date</label>
+                        <input type="date" id="res-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" id="res-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Guests</label>
+                        <select id="res-guests">
+                            <option>2 People</option>
+                            <option>4 People</option>
+                            <option>6 People</option>
+                            <option>10+ People</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="book-btn">Confirm Booking</button>
+                </form>
+            </div>
+        
+            <!-- Saved Bookings List -->
+            <div style="margin-top: 30px;">
+                <h3>Your Reservations</h3>
+                <ul id="booking-list" style="list-style: none; margin-top: 10px;"></ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CART SECTION -->
+    <section id="cart">
+        <div class="container">
+            <h2>Your Cart</h2>
+            <div id="cart-items">
+                <p>Your cart is empty.</p>
+            </div>
+            <div class="total-section">
+                Total: ₹<span id="cart-total">0</span>
+                <br><br>
+                <button class="book-btn" onclick="openPaymentModal()">Proceed to Payment</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAYMENT MODAL -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h2 style="text-align: center;">Checkout</h2>
+            <p style="text-align: center;">Total Amount: <strong>₹<span id="pay-amount">0</span></strong></p>
+            
+            <div class="form-group">
+                <label>Card Number</label>
+                <input type="text" placeholder="XXXX XXXX XXXX XXXX">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="form-group" style="flex:1">
+                    <label>Expiry</label>
+                    <input type="text" placeholder="MM/YY">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>CVV</label>
+                    <input type="password" placeholder="123">
+                </div>
+            </div>
+            
+            <div class="payment-icons" style="text-align: center;">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-paypal"></i>
+            </div>
+
+            <button class="book-btn" onclick="processPayment()">Pay Now</button>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA ---
+        const menuItems = [
+            { id: 1, name: "Paneer Tikka", price: 250, type: "veg", img: "https://source.unsplash.com/100x100/?paneer" },
+            { id: 2, name: "Butter Chicken", price: 350, type: "non-veg", img: "https://source.unsplash.com/100x100/?chicken" },
+            { id: 3, name: "Dal Makhani", price: 200, type: "veg", img: "https://source.unsplash.com/100x100/?dal" },
+            { id: 4, name: "Fish Curry", price: 400, type: "non-veg", img: "https://source.unsplash.com/100x100/?fish" },
+            { id: 5, name: "Veg Biryani", price: 220, type: "veg" },
+            { id: 6, name: "Chicken Biryani", price: 300, type: "non-veg" },
+            { id: 7, name: "Palak Paneer", price: 230, type: "veg" },
+            { id: 8, name: "Mutton Korma", price: 450, type: "non-veg" }
+        ];
+
+        let cart = [];
+        let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function filterMenu(type) {
+            renderMenu(type);
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function renderMenu(filter = 'all') {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = menuItems.filter(i => filter === 'all' || i.type === filter).map(item => `
+                <div class="food-card">
+                    <div class="food-header">
+                        <strong>${item.name}</strong>
+                        <span class="badge ${item.type}">${item.type.toUpperCase()}</span>
+                    </div>
+                    <div class="price">₹${item.price}</div>
+                    <button class="add-btn" onclick="addToCart(${item.id})">Add to Cart</button>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const item = menuItems.find(i => i.id === id);
+            cart.push(item);
+            updateCart();
+            alert(item.name + ' added to cart! 🛒');
+        }
+
+        function updateCart() {
+            document.getElementById('cart-count').innerText = '(' + cart.length + ')';
+            const container = document.getElementById('cart-items');
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p>Your cart is empty.</p>';
+            } else {
+                container.innerHTML = cart.map((item, index) => `
+                    <div class="cart-item">
+                        <span>${item.name}</span>
+                        <span>₹${item.price} <i class="fas fa-trash" style="color:red;cursor:pointer;margin-left:10px;" onclick="removeFromCart(${index})"></i></span>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('cart-total').innerText = total;
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function handleBooking(e) {
+            e.preventDefault();
+            const booking = {
+                name: document.getElementById('res-name').value,
+                phone: document.getElementById('res-phone').value,
+                date: document.getElementById('res-date').value,
+                time: document.getElementById('res-time').value,
+                guests: document.getElementById('res-guests').value,
+                timestamp: new Date().toISOString()
+            };
+            bookings.push(booking);
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            alert('✅ Table Booked Successfully!');
+            e.target.reset();
+            renderBookings();
+        }
+
+        function renderBookings() {
+            const list = document.getElementById('booking-list');
+            if (bookings.length === 0) {
+                list.innerHTML = '<li>No bookings yet.</li>';
+            } else {
+                list.innerHTML = bookings.map(b => `
+                    <li style="background:white; padding:10px; margin-bottom:5px; border-radius:4px; border-left: 3px solid var(--primary);">
+                        <strong>${b.name}</strong> | 📞 ${b.phone}<br>
+                        📅 ${b.date} at ${b.time} | 👥 ${b.guests}
+                    </li>
+                `).join('');
+            }
+        }
+
+        function openPaymentModal() {
+            if(cart.length === 0) return alert('Cart is empty! Add items first.');
+            const total = cart.reduce((s,i)=>s+i.price,0);
+            document.getElementById('pay-amount').innerText = total;
+            document.getElementById('paymentModal').style.display = 'block';
+        }
+
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
+        }
+
+        function processPayment() {
+            const total = cart.reduce((s,i)=>s+i.price,0);
+            alert(`💰 Payment Successful!\nAmount: ₹${total}\n\nThank you for ordering!`);
+            cart = [];
+            updateCart();
+            closePaymentModal();
+        }
+
+        // Initialize
+        renderMenu();
+        renderBookings();
+    </script>
+</body>
+</html>
